@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>仙音阁</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Shalimar&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comforter+Brush&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    </head>
+<body>
+    <video id="background-video" src="background.mp4" muted loop autoplay preload="metadata" style="display:block;"></video>
+    <header class="logo-container">
+        <img src="logo.png" alt="Logo">
+        <h1>Tieân AÂm Caùc</h1>
+    </header>
+    <video id="rain-video" src="rain.mp4" muted loop style="display:none;"></video>
+    <img id="splash-logo" src="logo.png" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; display: none; width: 500px; height: 500px;">
+    <div id="upload-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;" onclick="toggleUploadForm()">
+      <div id="upload-form" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #f5f7fa, #c3cfe2); color: #333; padding: 30px; border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; font-size: 18px; font-family: 'Arial', sans-serif; width: 600px;" onclick="event.stopPropagation()">
+        <button style="position: absolute; top: 10px; right: 10px; background: #ff6b6b; border: none; color: white; font-size: 18px; cursor: pointer; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;" onclick="toggleUploadForm()">&times;</button>
+        <h2 style="margin: 0 0 20px 0; color: #333;">Add track - Create album</h2>
+        <div style="display: flex; align-items: center; margin: 10px;">
+          <label for="album-select" style="color: #333; margin-right: 10px;">Add track:</label>
+          <select id="album-select" required style="color: #333; border: 1px solid #dc3545; border-radius: 5px; padding: 10px; width: 100%; max-width: 200px;">
+            <option value="">Select album (required)</option>
+          </select>
+          <input type="file" id="file-input" accept="audio/*" style="margin-left: 10px; color: #333; border: 1px solid #ccc; border-radius: 5px; padding: 10px; width: 100%; max-width: 250px;">
+        </div>
+        <div style="display: flex; align-items: center; margin: 10px;">
+          <label for="new-album-name" style="color: #333; margin-right: 10px;">Create album:</label>
+          <input type="text" id="new-album-name" placeholder="New album name" style="flex: 1; margin-right: 10px; color: #333; border: 1px solid #ccc; border-radius: 5px; padding: 10px;">
+          <button onclick="createAlbum()" style="color: white; background: #28a745; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer;">Create album</button>
+        </div>
+        <button onclick="uploadFile()" style="margin: 10px; color: white; background: #007bff; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer;">Upload</button>
+      </div>
+    </div>
+    <div id="manage-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;" onclick="toggleManageModal()">
+      <div id="manage-form" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #f5f7fa, #c3cfe2); color: #333; padding: 30px; border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; font-size: 18px; font-family: 'Arial', sans-serif;" onclick="event.stopPropagation()">
+        <button style="position: absolute; top: 10px; right: 10px; background: #ff6b6b; border: none; color: white; font-size: 18px; cursor: pointer; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;" onclick="toggleManageModal()">&times;</button>
+        <h2 style="margin: 0 0 20px 0; color: #333;">Track management</h2>
+        <div style="display: flex; align-items: center; margin: 10px;">
+          <label for="song-input" style="color: #333; margin-right: 10px;">Track:</label>
+          <input type="text" id="song-input" list="song-list" placeholder="Select or search track" style="color: #333; border: 1px solid #ccc; border-radius: 5px; padding: 10px; flex: 1; max-width: 300px;">
+          <button onclick="playSongFromManage()" style="margin-left: 10px; color: white; background: #28a745; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer;">Play</button>
+          <button onclick="deleteSong()" style="margin-left: 10px; color: white; background: #dc3545; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer;">Delete track</button>
+        </div>
+        <datalist id="song-list"></datalist>
+        <div style="display: flex; align-items: center; margin: 10px;">
+          <label for="new-song-name" style="color: #333; margin-right: 10px;">Rename:</label>
+          <input type="text" id="new-song-name" placeholder="Enter new name" style="color: #333; border: 1px solid #ccc; border-radius: 5px; padding: 10px; flex: 1; max-width: 300px;">
+        </div>
+        <div style="display: flex; align-items: center; margin: 10px;">
+          <label for="song-note-input" style="color: #333; margin-right: 10px;">Note:</label>
+          <textarea id="song-note-input" placeholder="Edit note" style="color: #333; border: 1px solid #ccc; border-radius: 5px; padding: 10px; flex: 1; max-width: 300px; height: 100px; resize: vertical;"></textarea>
+          <button id="color-label" style="margin-left: 10px; color: #333; cursor: pointer; background: #f0f0f0; border: 1px solid #ccc; padding: 5px 10px;" onclick="const picker = document.getElementById('color-picker'); picker.style.display = picker.style.display === 'block' ? 'none' : 'block';">Color</button>
+          <label style="margin-left: 10px; color: #333;"><input type="checkbox" id="note-bold-input"> Bold</label>
+        </div>
+        <div id="color-picker" style="margin: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; display: none;">
+            <div class="color-square" data-color="#ffffff" style="background-color: #ffffff;" onclick="selectColor(this)"></div>
+            <div class="color-square" data-color="#000000" style="background-color: #000000;" onclick="selectColor(this)"></div>
+            <div class="color-square" data-color="#ff0000" style="background-color: #ff0000;" onclick="selectColor(this)"></div>
+            <div class="color-square" data-color="#00ff00" style="background-color: #00ff00;" onclick="selectColor(this)"></div>
+            <div class="color-square" data-color="#0000ff" style="background-color: #0000ff;" onclick="selectColor(this)"></div>
+            <div class="color-square" data-color="#ffff00" style="background-color: #ffff00;" onclick="selectColor(this)"></div>
+            <div class="color-square" data-color="#00ffff" style="background-color: #00ffff;" onclick="selectColor(this)"></div>
+            <div class="color-square" data-color="#ff00ff" style="background-color: #ff00ff;" onclick="selectColor(this)"></div>
+            <div class="color-square" data-color="#808080" style="background-color: #808080;" onclick="selectColor(this)"></div>
+            <div class="color-square" data-color="#ffa500" style="background-color: #ffa500;" onclick="selectColor(this)"></div>
+            <div class="color-square" data-color="#800080" style="background-color: #800080;" onclick="selectColor(this)"></div>
+            <div class="color-square" data-color="#a52a2a" style="background-color: #a52a2a;" onclick="selectColor(this)"></div>
+        </div>
+        <input type="hidden" id="note-color-input" value="#ffffff">
+        <div style="display: flex; align-items: center; margin: 10px;">
+          <label for="album-move-select" style="color: #333; margin-right: 10px;">Move to:</label>
+          <select id="album-move-select" style="color: #333; border: 1px solid #ccc; border-radius: 5px; padding: 10px; flex: 1; max-width: 300px;">
+            <option value="">Select an album to move to (optional)</option>
+          </select>
+        </div>
+        <div style="display: flex; align-items: center; margin: 10px;">
+          <label for="song-background-file-input" style="color: #333; margin-right: 10px;">Background:</label>
+          <input type="file" id="song-background-file-input" accept="video/*" style="color: #333; border: 1px solid #ccc; border-radius: 5px; padding: 10px; flex: 1; max-width: 300px;">
+          <button onclick="deleteSongBackground()" style="margin-left: 10px; color: white; background: #dc3545; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer;">Delete Background</button>
+        </div>
+        <div style="display: flex; align-items: center; margin: 10px;">
+          <label for="song-replace-file-input" style="color: #333; margin-right: 10px;">Replace MP3:</label>
+          <input type="file" id="song-replace-file-input" accept="audio/*" style="color: #333; border: 1px solid #ccc; border-radius: 5px; padding: 10px; flex: 1; max-width: 300px;">
+        </div>
+        <button onclick="saveSongChanges()" style="margin: 10px; color: white; background: #007bff; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer;">Save changes</button>
+      </div>
+    </div>
+    <button onclick="toggleFunctionMenu()" style="position: absolute; top: 70px; right: 10px; background: transparent; border: none; font-size: 24px; cursor: pointer;">☰</button>
+    <button id="rain-button" onclick="playRainLoop()" style="position: absolute; top: 110px; right: 10px; background: transparent; border: none; font-size: 24px; cursor: pointer; font-family: 'Comforter Brush', cursive;"><i class="bi bi-cloud-lightning-rain"></i></button>
+    <div id="function-menu" style="display: none; position: absolute; top: 110px; right: 10px; background: rgba(0,0,0,0.8); color: white; border: 2px solid white; border-radius: 5px; padding: 10px; z-index: 1000;">
+      <p onclick="toggleUploadForm(); toggleFunctionMenu();" style="margin: 5px 0 0 0; cursor: pointer; font-family: 'Shalimar', cursive; font-size: 24px;">● Add track/Create album</p>
+      <p onclick="toggleManageModal(); toggleFunctionMenu();" style="margin: 5px 0 0 0; cursor: pointer; font-family: 'Shalimar', cursive; font-size: 24px;">● Track management</p>
+    </div>
+    <div id="left-container" style="margin: 80px 10px 10px 10px;">
+      <div id="album-list" onclick="toggleAlbums()" style="background: transparent; color: white; padding: 10px; margin: 0; border: 2px solid white;">
+        <h3 style="font-family: 'Comforter Brush', cursive; font-size: 24px; cursor: pointer; font-weight: normal;">Album <span id="current-album-label"></span></h3>
+        <div id="album-items" onclick="event.stopPropagation()" style="display: block;"></div>
+      </div>
+    </div>
+    <div id="song-note" style="display:none; background: transparent; color: inherit; padding: 10px; margin: 10px; border: none; font-family: 'Shalimar', cursive; font-size: 30px; max-height: 100vh; overflow-y: auto; position: absolute; left: 25%; top: 80px;"></div>
+    <div id="audio-list" style="display:none; background: transparent; color: white; padding: 10px; margin: 10px; border: 2px solid white; overflow-y: auto; max-height: 350px;">
+       <h3 style="font-family: 'Comforter Brush', cursive; font-size: 24px; font-weight: normal;">Track</h3>
+       <div id="audio-items"></div>
+    </div>
+    <div id="controls" style="display:none; margin-top: 10px; color: white;">
+      <button id="prev-btn" style="margin: 5px;">◁◁</button>
+      <button id="play-pause-btn" style="margin: 5px;">▶</button>
+      <button id="next-btn" style="margin: 5px;">▷▷</button>
+      <button id="repeat-btn" style="margin: 5px;"><i class="fa-solid fa-repeat"></i></button>
+      <button id="download-btn" onclick="downloadCurrentSong()" style="margin: 5px;"><i class="bi bi-download"></i></button>
+      <br>
+      <input type="range" id="seek-bar" min="0" max="100" value="0" style="width: 150px; margin: 5px;">
+      <span id="current-time">0:00</span> / <span id="duration">0:00</span>
+    </div>
+    <div id="song-name"></div>
+    <audio id="audio">
+        <source src="" type="audio/mpeg">
+        Your browser does not support audio playback.
+    </audio>
+    <audio id="rain-audio" style="display:none;" loop></audio>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase.js"></script>
+    <script src="script.js?v=1"></script>
+    <div id="overlay" class="overlay">
+        <div class="spinner"></div>
+    </div>
+    <div id="notification" style="display:none;"></div>
+    <div id="bottom-link" style="position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); color: white; font-size: 28px; text-decoration: none; z-index: 1001; display: none;">
+        <a href="https://tiktok.com/@dead.lai" target="_blank" style="color: white; text-decoration: none;"><span style="font-family: 'VNI-Thuphap';">Tieân AÂm Caùc Chuû: Hoa Laïc Tieân (Dead Lai)</span></a>
+    </div>
+    </body>
+</html>
