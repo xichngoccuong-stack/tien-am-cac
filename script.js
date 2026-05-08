@@ -413,7 +413,6 @@
    const newNote = document.getElementById('song-note-input').value;
    const newNoteColor = document.getElementById('note-color-input').value;
    const newNoteBold = document.getElementById('note-bold-input').checked;
-   const backgroundFile = document.getElementById('song-background-file-input').files[0];
    const replaceFile = document.getElementById('song-replace-file-input').files[0];
    const updateData = {};
    if (newName) {
@@ -425,12 +424,6 @@
    updateData.note = newNote;
    updateData.noteColor = newNoteColor;
    updateData.noteBold = newNoteBold;
-   if (backgroundFile) {
-     const url = await uploadSongBackgroundVideo(backgroundFile);
-     if (url) {
-       updateData.backgroundVideo = url;
-     }
-   }
    if (replaceFile) {
      document.getElementById('overlay').style.display = 'block';
      const formData = new FormData();
@@ -452,14 +445,13 @@
        return;
      }
    }
-   if (Object.keys(updateData).length === 0 && !file) {
+   if (Object.keys(updateData).length === 0 && !replaceFile) {
      alert('No changes');
      return;
    }
    try {
      await db.collection('music').doc(songId).update(updateData);
      showNotification('Update successful');
-     document.getElementById('song-background-file-input').value = '';
      document.getElementById('song-replace-file-input').value = '';
      toggleManageModal();
      if (isAlbumsLoaded) loadAlbumList();
@@ -499,35 +491,6 @@
    }
  }
 
- async function deleteSongBackground() {
-     const songNameInput = document.getElementById('song-input').value;
-     if (!songNameInput) {
-       alert('Please select a track');
-       return;
-     }
-     const song = manageSongs.find(s => s.name.replace('.mp3', '') === songNameInput);
-     if (!song) {
-       alert('Track not found');
-       return;
-     }
-     const songId = song.id;
-   const confirmDelete = confirm('Are you sure you want to delete the background video for this track?');
-   if (!confirmDelete) {
-     return;
-   }
-   try {
-     await db.collection('music').doc(songId).update({ backgroundVideo: null });
-     showNotification('Background video deleted successfully');
-     toggleManageModal();
-   } catch (error) {
-     console.error('Delete background video failed:', error);
-     alert('Delete background video failed');
-   }
- }
-
-
-
-
  window.playAudio = playAudio;
  window.uploadFile = uploadFile;
  window.toggleUploadForm = toggleUploadForm;
@@ -538,7 +501,6 @@
  window.loadAlbumsForManage = loadAlbumsForManage;
  window.saveSongChanges = saveSongChanges;
  window.deleteSong = deleteSong;
- window.deleteSongBackground = deleteSongBackground;
  window.toggleAlbums = toggleAlbums;
  window.playRainLoop = playRainLoop;
 
