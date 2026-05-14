@@ -703,6 +703,7 @@
    const splashLogo = document.getElementById('splash-logo');
    const loadingText = document.getElementById('loading-text');
    splashLogo.style.display = 'block';
+   splashLogo.play().catch(() => {});
    // loadingText.style.display = 'block'; // Commented out because loading-text div was removed
    await loadAlbums();
    if (!isAlbumsLoaded) {
