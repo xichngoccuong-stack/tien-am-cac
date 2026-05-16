@@ -700,19 +700,15 @@
  }
 
  window.onload = async function() {
-   const splashLogo = document.getElementById('splash-logo');
-   const loadingText = document.getElementById('loading-text');
-   splashLogo.style.display = 'block';
-   splashLogo.play().catch(() => {});
-   // loadingText.style.display = 'block'; // Commented out because loading-text div was removed
+   const overlay = document.getElementById('overlay');
+   overlay.style.display = 'block';
    await loadAlbums();
    if (!isAlbumsLoaded) {
      await loadAlbumList();
      isAlbumsLoaded = true;
    }
    await document.fonts.load('1em "VNI-Thuphap"');
-   splashLogo.style.display = 'none';
-   // loadingText.style.display = 'none'; // Commented out because loading-text div was removed
+   overlay.style.display = 'none';
    const header = document.querySelector('.logo-container');
    header.style.display = 'flex';
    const bottomLink = document.getElementById('bottom-link');
